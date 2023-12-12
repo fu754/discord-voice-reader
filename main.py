@@ -60,9 +60,12 @@ async def recv_message(message) -> None:
         pass
 
     elif message.guild.voice_client:
+        if message.guild.voice_client.is_playing():
+            await message.channel.send('前の音声がまだ再生中です')
+            return
         create_wav_sound(message.content)
         wav_sound = discord.FFmpegPCMAudio("out.wav")
-        await message.guild.voice_client.play(wav_sound)
+        message.guild.voice_client.play(wav_sound)
     else:
         pass
 
