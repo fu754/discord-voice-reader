@@ -5,19 +5,19 @@ from typing import Final, Union
 SPEAKER_ID: Final[int] = 1
 URL: Final[str] = 'http://127.0.0.1:50021'
 
-def get_sound() -> Union[bytes, None]:
+def create_wav_sound(text: str) -> Union[bytes, None]:
     # クエリの取得
     endpoint: str = f'{URL}/audio_query'
     params = {
         'speaker': SPEAKER_ID,
-        'text': 'こんにちは'
+        'text': text
     }
     res = requests.post(
         url=endpoint,
         params=params
     )
     query = res.json()
-    with open('query.json', mode='w') as fp:
+    with open('query.json', mode='w', encoding='utf_8_sig') as fp:
         fp.write(json.dumps(query, indent=4))
 
     # 音声の取得
@@ -41,4 +41,5 @@ def get_sound() -> Union[bytes, None]:
         return None
 
 if __name__ == '__main__':
-    get_sound()
+    text: str = "こんにちは"
+    create_wav_sound(text)

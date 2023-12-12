@@ -1,6 +1,8 @@
 import os
 import discord
 from discord.ext import commands
+from voicevox import create_wav_sound
+
 from typing import Final
 
 from dotenv import load_dotenv
@@ -15,22 +17,53 @@ client = commands.Bot(command_prefix='$', intents=intents, )
 
 # 起動時に実行される
 @client.event
-async def on_ready():
+async def on_ready() -> None:
     print(f'We have logged in as {client.user}')
 
 # testコマンド
 @client.command()
-async def test(ctx, *, arg):
+async def test(ctx, *, arg) -> None:
     await ctx.send(f'This is test message (receive from: {ctx.author}), message: {arg}')
+
+@client.command()
+async def system_start(ctx) -> None:
+    if not ctx.author.voice:
+        await ctx.send(f'ボイスチャンネルに参加していないユーザーからコマンドが実行されました')
+        return
+    vc = ctx.author.voice.channel
+    try:
+        await vc.connect()
+    except discord.errors.ClientException as e:
+        await ctx.send('既にボイスチャンネルに参加しています。一度終了してから再実行してください。')
+    except:
+        await ctx.send('ボイスチャンネルへの接続に失敗しました')
+
+
+@client.command()
+async def system_stop(ctx) -> None:
+    if not ctx.voice_client:
+        await ctx.send(f'botがボイスチャンネルに参加していません')
+        return
+    await ctx.voice_client.disconnect()
 
 # 新規メッセージの受信
 # https://discordpy.readthedocs.io/ja/latest/faq.html#why-does-on-message-make-my-commands-stop-working
 @client.listen('on_message')
-async def recv_message(message):
+async def recv_message(message) -> None:
     if message.author == client.user:
         pass
 
-    if message.content.startswith('hello'):
+    elif message.content.startswith('hello'):
         await message.channel.send('Hello!')
+
+    elif message.content.startswith('$system'):
+        pass
+
+    elif message.guild.voice_client:
+        create_wav_sound(message.content)
+        wav_sound = discord.FFmpegPCMAudio("out.wav")
+        await message.guild.voice_client.play(wav_sound)
+    else:
+        pass
 
 client.run(DISCORD_BOT_TOKEN)
