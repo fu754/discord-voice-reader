@@ -28,13 +28,13 @@ async def on_ready() -> None:
     print(synced_cmd)
 
 # testコマンド
-@tree.command(name="test",description="これはテストコマンドです。")
+@tree.command(name="test", description="これはテストコマンドです。")
 async def test(interaction: discord.Interaction) -> None:
     username = interaction.user.name
     await interaction.response.send_message(f'テストコマンドを実行しました (receive from: {username})', ephemeral=False) # Trueにすると実行者のみ
 
 # 開始コマンド
-@tree.command(name="start",description="botをVCに参加させ音声読み上げを開始する")
+@tree.command(name="start", description="botをVCに参加させ音声読み上げを開始する")
 async def system_start(interaction: discord.Interaction) -> None:
     if not interaction.user.voice:
         await interaction.response.send_message('ボイスチャンネルに参加していないユーザーからコマンドが実行されました', ephemeral=False)
@@ -49,7 +49,7 @@ async def system_start(interaction: discord.Interaction) -> None:
         await interaction.response.send_message('ボイスチャンネルへの接続に失敗しました', ephemeral=False)
 
 # 終了コマンド
-@tree.command(name="stop",description="botをVCから退席させ音声読み上げを終了する")
+@tree.command(name="stop", description="botをVCから退席させ音声読み上げを終了する")
 async def system_stop(interaction: discord.Interaction) -> None:
     if not interaction.guild.voice_client:
         await interaction.response.send_message('botがボイスチャンネルに参加していません', ephemeral=False)
@@ -76,17 +76,18 @@ async def on_message(message: discord.Message) -> None:
 
         text: str = message.content
 
-        print(f'置換前: {text}')
+        # print(f'置換前: {text}')
         text = re_http.sub(" アドレス文字列 ", text)
         text = re_emoji.sub("絵文字", text)
-        print(f'置換後: {text}')
+        # print(f'置換後: {text}')
 
-        is_created = await create_wav_sound(text)
+        is_created: bool = await create_wav_sound(text)
         if not is_created:
             await message.channel.send('音声ファイルの生成に失敗しました')
             return
         wav_sound = discord.FFmpegPCMAudio("out.wav")
         message.guild.voice_client.play(wav_sound)
+        print(f'読み上げ済み: {text}')
     else:
         pass
 

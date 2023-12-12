@@ -3,7 +3,7 @@ import json
 import aiohttp
 from typing import Final
 
-SPEAKER_ID: Final[int] = 1 # ずんだもん - あまあま
+SPEAKER_ID: Final[int] = 8 # 春日部つむぎ
 URL: Final[str] = 'http://127.0.0.1:50021'
 
 CHUNK_SIZE: Final[int] = 10
