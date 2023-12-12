@@ -2,7 +2,6 @@ import os
 import discord
 from discord.ext import commands
 from voicevox import create_wav_sound
-
 from typing import Final
 
 from dotenv import load_dotenv

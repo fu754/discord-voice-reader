@@ -1,8 +1,8 @@
 import json
 import requests
-from typing import Final, Union
+from typing import Final
 
-SPEAKER_ID: Final[int] = 1
+SPEAKER_ID: Final[int] = 1 # ずんだもん - あまあま
 URL: Final[str] = 'http://127.0.0.1:50021'
 
 def create_wav_sound(text: str) -> bool:
