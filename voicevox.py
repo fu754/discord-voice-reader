@@ -5,7 +5,7 @@ from typing import Final, Union
 SPEAKER_ID: Final[int] = 1
 URL: Final[str] = 'http://127.0.0.1:50021'
 
-def create_wav_sound(text: str) -> Union[bytes, None]:
+def create_wav_sound(text: str) -> bool:
     # クエリの取得
     endpoint: str = f'{URL}/audio_query'
     params = {
@@ -35,10 +35,10 @@ def create_wav_sound(text: str) -> Union[bytes, None]:
         sound_data: Final[bytes] = res2.content
         with open('out.wav', mode='wb') as fp:
             fp.write(sound_data)
-        return sound_data
+        return True
     else:
         print(res2.json())
-        return None
+        return False
 
 if __name__ == '__main__':
     text: str = "こんにちは"
