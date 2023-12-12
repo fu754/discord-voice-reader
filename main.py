@@ -1,5 +1,6 @@
 import os
 import discord
+from discord import app_commands
 from discord.ext import commands
 from voicevox import create_wav_sound
 from typing import Final
@@ -11,44 +12,46 @@ DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
 intents = discord.Intents.default()
 intents.message_content = True
 
-# client = discord.Client(intents=intents)
-client = commands.Bot(command_prefix='$', intents=intents, )
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
 # 起動時に実行される
 @client.event
 async def on_ready() -> None:
     print(f'We have logged in as {client.user}')
+    synced_cmd = await tree.sync() # スラッシュコマンドを同期する
+    print(synced_cmd)
 
 # testコマンド
-@client.command()
-async def test(ctx, *, arg) -> None:
-    await ctx.send(f'This is test message (receive from: {ctx.author}), message: {arg}')
+@tree.command(name="test",description="これはテストコマンドです。")
+async def test(interaction: discord.Interaction) -> None:
+    username = interaction.user.name
+    await interaction.response.send_message(f'テストコマンドを実行しました (receive from: {username})', ephemeral=False) # Trueにすると実行者のみ
 
-@client.command()
-async def system_start(ctx) -> None:
-    if not ctx.author.voice:
-        await ctx.send(f'ボイスチャンネルに参加していないユーザーからコマンドが実行されました')
+@tree.command(name="start",description="botをVCに参加させ音声読み上げを開始する")
+async def system_start(interaction: discord.Interaction) -> None:
+    if not interaction.user.voice:
+        await interaction.response.send_message('ボイスチャンネルに参加していないユーザーからコマンドが実行されました', ephemeral=False)
         return
-    vc = ctx.author.voice.channel
+    vc = interaction.user.voice.channel
     try:
         await vc.connect()
+        await interaction.response.send_message('ボイスチャンネルに参加しました', ephemeral=False)
     except discord.errors.ClientException as e:
-        await ctx.send('既にボイスチャンネルに参加しています。一度終了してから再実行してください。')
+        await interaction.response.send_message('既にボイスチャンネルに参加しています。一度終了してから再実行してください。', ephemeral=False)
     except:
-        await ctx.send('ボイスチャンネルへの接続に失敗しました')
+        await interaction.response.send_message('ボイスチャンネルへの接続に失敗しました', ephemeral=False)
 
-
-@client.command()
-async def system_stop(ctx) -> None:
-    if not ctx.voice_client:
-        await ctx.send(f'botがボイスチャンネルに参加していません')
+@tree.command(name="stop",description="botをVCから退席させ音声読み上げを終了する")
+async def system_stop(interaction: discord.Interaction) -> None:
+    if not interaction.guild.voice_client:
+        await interaction.response.send_message('botがボイスチャンネルに参加していません', ephemeral=False)
         return
-    await ctx.voice_client.disconnect()
+    await interaction.guild.voice_client.disconnect()
+    await interaction.response.send_message('退席しました', ephemeral=False)
 
-# 新規メッセージの受信
-# https://discordpy.readthedocs.io/ja/latest/faq.html#why-does-on-message-make-my-commands-stop-working
-@client.listen('on_message')
-async def recv_message(message) -> None:
+@client.event
+async def on_message(message) -> None:
     if message.author == client.user:
         pass
 
