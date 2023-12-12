@@ -1,4 +1,5 @@
 import os
+import re
 import discord
 from discord import app_commands
 # from discord.ext import commands
@@ -14,6 +15,10 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
+
+# 除外する正規表現
+re_http = re.compile(r'https?://\S+')
+re_emoji = re.compile(r'<:.*?>')
 
 # 起動時に実行される
 @client.event
@@ -54,7 +59,7 @@ async def system_stop(interaction: discord.Interaction) -> None:
 
 # そのほかのメッセージ受信時
 @client.event
-async def on_message(message) -> None:
+async def on_message(message: discord.Message) -> None:
     if message.author == client.user:
         pass
 
@@ -68,7 +73,15 @@ async def on_message(message) -> None:
         if message.guild.voice_client.is_playing():
             await message.channel.send('前の音声がまだ再生中です')
             return
-        is_created = create_wav_sound(message.content)
+
+        text: str = message.content
+
+        print(f'置換前: {text}')
+        text = re_http.sub(" アドレス文字列 ", text)
+        text = re_emoji.sub("絵文字", text)
+        print(f'置換後: {text}')
+
+        is_created = create_wav_sound(text)
         if not is_created:
             await message.channel.send('音声ファイルの生成に失敗しました')
             return
