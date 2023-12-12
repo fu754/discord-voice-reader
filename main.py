@@ -81,7 +81,7 @@ async def on_message(message: discord.Message) -> None:
         text = re_emoji.sub("絵文字", text)
         print(f'置換後: {text}')
 
-        is_created = create_wav_sound(text)
+        is_created = await create_wav_sound(text)
         if not is_created:
             await message.channel.send('音声ファイルの生成に失敗しました')
             return
