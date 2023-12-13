@@ -11,6 +11,7 @@ from typing import Final
 from dotenv import load_dotenv
 load_dotenv()
 
+# envの設定
 class Env(Enum):
     dev = auto()
     prod = auto()
@@ -24,18 +25,20 @@ else:
     raise ValueError('ENV is invalid value (set prod or dev)')
 ENV: Final[Env] = _env
 
+# トークンの取得
 DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
-intents = discord.Intents.default()
-intents.message_content = True
-
-client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
 
 # 除外する正規表現
 re_http = re.compile(r'https?://\S+')
 re_emoji = re.compile(r'<:.*?>')
 
-# 起動時に実行される
+# インスタンス作成
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
+
+# 起動時に実行される部分
 @client.event
 async def on_ready() -> None:
     print(f'We have logged in as {client.user}')
@@ -59,6 +62,8 @@ async def system_start(interaction: discord.Interaction) -> None:
         await vc.connect()
         text: str = 'ボイスチャンネルに参加しました'
         await interaction.response.send_message(text, ephemeral=False)
+
+        # 参加時の音声生成
         is_created: bool = await create_wav_sound(text)
         if not is_created:
             await interaction.response.send_message('音声ファイルの生成に失敗しました')
@@ -81,18 +86,14 @@ async def system_stop(interaction: discord.Interaction) -> None:
     await interaction.guild.voice_client.disconnect()
     await interaction.response.send_message('退席しました', ephemeral=False)
 
-# そのほかのメッセージ受信時
+# 通常のメッセージ受信時
 @client.event
 async def on_message(message: discord.Message) -> None:
+    # bot自身のメッセージは除外
     if message.author == client.user:
         pass
-
-    elif message.content.startswith('hello'):
-        await message.channel.send('Hello!')
-
-    elif message.content.startswith('$system'):
-        pass
-
+    
+    # botがボイスチャットに参加しているとき
     elif message.guild.voice_client:
         if message.guild.voice_client.is_playing():
             await message.channel.send('前の音声がまだ再生中です')
@@ -115,4 +116,5 @@ async def on_message(message: discord.Message) -> None:
     else:
         pass
 
+# bot起動
 client.run(DISCORD_BOT_TOKEN)

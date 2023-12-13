@@ -33,6 +33,14 @@ URL: Final[str] = _url
 CHUNK_SIZE: Final[int] = 10
 
 async def create_wav_sound(text: str) -> bool:
+    """
+    voicevox engineのAPIを呼び出して音声を生成する
+
+    Parameters:
+        text : str : 音声生成するテキスト
+    Returns:
+        bool : 生成に成功したか
+    """
     # クエリの取得
     endpoint: str = f'{URL}/audio_query'
     params = {
@@ -41,7 +49,11 @@ async def create_wav_sound(text: str) -> bool:
     }
     async with aiohttp.ClientSession() as session:
         async with session.post(url=endpoint, params=params) as r:
-            query = await r.json()
+            if r.stats == 200:
+                query = await r.json()
+            else:
+                print(res.json())
+                return False
     with open('query.json', mode='w', encoding='utf_8_sig') as fp:
         fp.write(json.dumps(query, indent=4))
 
