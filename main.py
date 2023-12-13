@@ -42,7 +42,7 @@ def omit_special_word(text: str) -> str:
     re_http = re.compile(r'https?://\S+')
     text = re_http.sub(" アドレス文字列 ", text)
     re_emoji = re.compile(r'<:.*?>')
-    text = re_emoji.sub("絵文字", text)
+    text = re_emoji.sub(" 絵文字 ", text)
     return text
 
 # 起動時に実行される部分
