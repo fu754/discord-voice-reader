@@ -8,6 +8,7 @@
 - docker-compose
 - ローカル環境で起動するとき
     - pyenv
+    - ffmpeg
 ### 環境構築
 1. `.env`ファイルを作成してDiscordのbotのトークンをセットする
     ```

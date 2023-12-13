@@ -3,7 +3,6 @@ import re
 import asyncio
 import discord
 from discord import app_commands
-# from discord.ext import commands
 from voicevox import create_wav_sound
 from enum import Enum, auto
 from typing import Final
@@ -28,15 +27,19 @@ ENV: Final[Env] = _env
 # トークンの取得
 DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
 
-# 除外する正規表現
-re_http = re.compile(r'https?://\S+')
-re_emoji = re.compile(r'<:.*?>')
-
 # インスタンス作成
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
+
+# 除外する正規表現
+def omit_special_word(text: str) -> str:
+    re_http = re.compile(r'https?://\S+')
+    text = re_http.sub(" アドレス文字列 ", text)
+    re_emoji = re.compile(r'<:.*?>')
+    text = re_emoji.sub("絵文字", text)
+    return text
 
 # 起動時に実行される部分
 @client.event
@@ -92,20 +95,15 @@ async def on_message(message: discord.Message) -> None:
     # bot自身のメッセージは除外
     if message.author == client.user:
         pass
-    
     # botがボイスチャットに参加しているとき
     elif message.guild.voice_client:
         if message.guild.voice_client.is_playing():
             await message.channel.send('前の音声がまだ再生中です')
             return
-
         text: str = message.content
+        text = omit_special_word(text)
 
-        # print(f'置換前: {text}')
-        text = re_http.sub(" アドレス文字列 ", text)
-        text = re_emoji.sub("絵文字", text)
-        # print(f'置換後: {text}')
-
+        # 音声の生成
         is_created: bool = await create_wav_sound(text)
         if not is_created:
             await message.channel.send('音声ファイルの生成に失敗しました')
