@@ -21,7 +21,6 @@ else:
     raise ValueError('ENV is invalid value (set prod or dev)')
 ENV: Final[Env] = _env
 
-SPEAKER_ID: Final[int] = 8 # 春日部つむぎ
 _url: str
 if ENV == Env.prod:
     _url = 'http://voicevox:50021'
@@ -33,7 +32,7 @@ URL: Final[str] = _url
 
 CHUNK_SIZE: Final[int] = 10
 
-async def create_wav_sound(text: str) -> bool:
+async def create_wav_sound(speaker_id: int, text: str) -> bool:
     """
     voicevox engineのAPIを呼び出して音声を生成する
 
@@ -45,7 +44,7 @@ async def create_wav_sound(text: str) -> bool:
     # クエリの取得
     endpoint: str = f'{URL}/audio_query'
     params = {
-        'style_id': SPEAKER_ID,
+        'style_id': speaker_id,
         'text': text
     }
     async with aiohttp.ClientSession() as session:
@@ -62,7 +61,7 @@ async def create_wav_sound(text: str) -> bool:
     # 音声の取得
     endpoint: str = f'{URL}/synthesis'
     params2 = {
-        'style_id': SPEAKER_ID
+        'style_id': speaker_id
     }
 
     async with aiohttp.ClientSession() as session:
@@ -96,5 +95,5 @@ async def get_style_list() -> list[Speaker]:
 
 if __name__ == '__main__':
     text: str = "こんにちは"
-    # asyncio.run(create_wav_sound(text))
+    # asyncio.run(create_wav_sound(8, text))
     speakers: list[Speaker] = asyncio.run(get_style_list())
