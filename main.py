@@ -11,7 +11,7 @@ from typing import Final
 from dotenv import load_dotenv
 load_dotenv()
 
-SPEAKER_ID: Final[int] = 8 # 春日部つむぎ
+STYLE_ID: Final[int] = 8 # 春日部つむぎ
 
 # envの設定
 class Env(Enum):
@@ -70,7 +70,7 @@ async def system_start(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(text, ephemeral=False)
 
         # 参加時の音声生成
-        is_created: bool = await create_wav_sound(SPEAKER_ID, text)
+        is_created: bool = await create_wav_sound(STYLE_ID, text)
         if not is_created:
             await interaction.response.send_message('音声ファイルの生成に失敗しました')
             return
@@ -119,7 +119,7 @@ async def on_message(message: discord.Message) -> None:
         text = omit_special_word(text)
 
         # 音声の生成
-        is_created: bool = await create_wav_sound(SPEAKER_ID, text)
+        is_created: bool = await create_wav_sound(STYLE_ID, text)
         if not is_created:
             await message.channel.send('音声ファイルの生成に失敗しました')
             return

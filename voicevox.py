@@ -32,11 +32,12 @@ URL: Final[str] = _url
 
 CHUNK_SIZE: Final[int] = 10
 
-async def create_wav_sound(speaker_id: int, text: str) -> bool:
+async def create_wav_sound(style_id: int, text: str) -> bool:
     """
     voicevox engineのAPIを呼び出して音声を生成する
 
     Parameters:
+        style_id : int : style_idを指定する
         text : str : 音声生成するテキスト
     Returns:
         bool : 生成に成功したか
@@ -44,7 +45,7 @@ async def create_wav_sound(speaker_id: int, text: str) -> bool:
     # クエリの取得
     endpoint: str = f'{URL}/audio_query'
     params = {
-        'style_id': speaker_id,
+        'style_id': style_id,
         'text': text
     }
     async with aiohttp.ClientSession() as session:
@@ -61,7 +62,7 @@ async def create_wav_sound(speaker_id: int, text: str) -> bool:
     # 音声の取得
     endpoint: str = f'{URL}/synthesis'
     params2 = {
-        'style_id': speaker_id
+        'style_id': style_id
     }
 
     async with aiohttp.ClientSession() as session:
