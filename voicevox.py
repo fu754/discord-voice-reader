@@ -1,7 +1,7 @@
 import asyncio
 import json
 import aiohttp
-from typing import Final
+from typing import Final, Union
 import os
 from enum import Enum, auto
 from typedef.Speaker import Speaker
@@ -81,7 +81,7 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
                 print(res)
                 return False
 
-async def get_style_list() -> list[Speaker]:
+async def get_style_list() -> Union[list[Speaker], None]:
     """
     スタイル一覧を取得する
 
@@ -96,7 +96,7 @@ async def get_style_list() -> list[Speaker]:
             else:
                 res = await r.json()
                 print(res)
-                return {}
+                return None
     result: list[Speaker] = (Speaker(**r) for r in res)
     return result
 
