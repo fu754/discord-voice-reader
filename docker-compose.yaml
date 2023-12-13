@@ -1,6 +1,7 @@
 services:
   voicevox:
-    image: "voicevox/voicevox_engine:nvidia-ubuntu20.04-latest"
+    # image: "voicevox/voicevox_engine:nvidia-ubuntu20.04-latest"
+    image: "voicevox/voicevox_engine:cpu-ubuntu20.04-latest"
     ports:
       - "50021:50021"
     deploy:
@@ -10,3 +11,8 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  main:
+    build: .
+    command: python main.py
+    depends_on:
+      - voicevox
