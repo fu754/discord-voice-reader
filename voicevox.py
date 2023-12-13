@@ -49,7 +49,7 @@ async def create_wav_sound(text: str) -> bool:
     }
     async with aiohttp.ClientSession() as session:
         async with session.post(url=endpoint, params=params) as r:
-            if r.stats == 200:
+            if r.status == 200:
                 query = await r.json()
             else:
                 print(res.json())
