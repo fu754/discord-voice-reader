@@ -4,13 +4,13 @@ services:
     image: "voicevox/voicevox_engine:cpu-ubuntu20.04-latest"
     ports:
       - "50021:50021"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
   main:
     build: .
     command: python main.py
