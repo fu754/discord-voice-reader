@@ -52,7 +52,8 @@ async def create_wav_sound(text: str) -> bool:
             if r.status == 200:
                 query = await r.json()
             else:
-                print(res.json())
+                res = await r.json()
+                print(res)
                 return False
     with open('query.json', mode='w', encoding='utf_8_sig') as fp:
         fp.write(json.dumps(query, indent=4))
@@ -66,6 +67,7 @@ async def create_wav_sound(text: str) -> bool:
     async with aiohttp.ClientSession() as session:
         async with session.post(url=endpoint, params=params2, json=query) as r:
             if r.status == 200:
+                # 受信したストリームをCHUNK_SIZEごとに書き込んでいく
                 with open('out.wav', mode='wb') as fp:
                     while(True):
                         chunk = await r.content.read(CHUNK_SIZE)
@@ -75,7 +77,7 @@ async def create_wav_sound(text: str) -> bool:
                 return True
             else:
                 res = await r.json()
-                print(res.json())
+                print(res)
                 return False
 
 if __name__ == '__main__':
