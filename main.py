@@ -1,5 +1,6 @@
 import os
 import re
+import asyncio
 import discord
 from discord import app_commands
 # from discord.ext import commands
@@ -56,7 +57,16 @@ async def system_start(interaction: discord.Interaction) -> None:
     vc = interaction.user.voice.channel
     try:
         await vc.connect()
-        await interaction.response.send_message('ボイスチャンネルに参加しました', ephemeral=False)
+        text: str = 'ボイスチャンネルに参加しました'
+        await interaction.response.send_message(text, ephemeral=False)
+        is_created: bool = await create_wav_sound(text)
+        if not is_created:
+            await interaction.response.send_message('音声ファイルの生成に失敗しました')
+            return
+        wav_sound = discord.FFmpegPCMAudio("out.wav")
+        await asyncio.sleep(1)
+        interaction.guild.voice_client.play(wav_sound)
+        print(f'読み上げ済み: {text}')
     except discord.errors.ClientException as e:
         await interaction.response.send_message('既にボイスチャンネルに参加しています。一度終了してから再実行してください。', ephemeral=False)
     except:
