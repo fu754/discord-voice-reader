@@ -4,10 +4,24 @@ import discord
 from discord import app_commands
 # from discord.ext import commands
 from voicevox import create_wav_sound
+from enum import Enum, auto
 from typing import Final
 
 from dotenv import load_dotenv
 load_dotenv()
+
+class Env(Enum):
+    dev = auto()
+    prod = auto()
+
+_env: Env
+if os.environ.get('ENV') == 'prod':
+    _env = Env.prod
+elif os.environ.get('ENV') == 'dev':
+    _env = Env.prod
+else:
+    raise ValueError('ENV is invalid value (set prod or dev)')
+ENV: Final[Env] = _env
 
 DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
 intents = discord.Intents.default()

@@ -2,9 +2,33 @@ import asyncio
 import json
 import aiohttp
 from typing import Final
+import os
+from enum import Enum, auto
+from dotenv import load_dotenv
+load_dotenv()
+
+class Env(Enum):
+    dev = auto()
+    prod = auto()
+
+_env: Env
+if os.environ.get('ENV') == 'prod':
+    _env = Env.prod
+elif os.environ.get('ENV') == 'dev':
+    _env = Env.prod
+else:
+    raise ValueError('ENV is invalid value (set prod or dev)')
+ENV: Final[Env] = _env
 
 SPEAKER_ID: Final[int] = 8 # 春日部つむぎ
-URL: Final[str] = 'http://127.0.0.1:50021'
+_url: str
+if ENV == Env.prod:
+    _url = 'http://voicevox:50021'
+elif Env == Env.dev:
+    _url = 'http://127.0.0.1:50021'
+else:
+    _url = 'http://127.0.0.1:50021'
+URL: Final[str] = _url
 
 CHUNK_SIZE: Final[int] = 10
 
