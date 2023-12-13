@@ -11,8 +11,6 @@ from typing import Final
 from dotenv import load_dotenv
 load_dotenv()
 
-STYLE_ID: Final[int] = 8 # 春日部つむぎ
-
 # envの設定
 class Env(Enum):
     dev = auto()
@@ -29,6 +27,9 @@ ENV: Final[Env] = _env
 
 # トークンの取得
 DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
+
+# デフォルトのスタイルIDの設定
+STYLE_ID: Final[int] = int(os.environ.get('DEFAULT_STYLE_ID'))
 
 # インスタンス作成
 intents = discord.Intents.default()
