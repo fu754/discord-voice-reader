@@ -4,6 +4,7 @@ import aiohttp
 from typing import Final
 import os
 from enum import Enum, auto
+from typedef.Speaker import Speaker
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -15,7 +16,7 @@ _env: Env
 if os.environ.get('ENV') == 'prod':
     _env = Env.prod
 elif os.environ.get('ENV') == 'dev':
-    _env = Env.prod
+    _env = Env.dev
 else:
     raise ValueError('ENV is invalid value (set prod or dev)')
 ENV: Final[Env] = _env
@@ -24,7 +25,7 @@ SPEAKER_ID: Final[int] = 8 # 春日部つむぎ
 _url: str
 if ENV == Env.prod:
     _url = 'http://voicevox:50021'
-elif Env == Env.dev:
+elif ENV == Env.dev:
     _url = 'http://127.0.0.1:50021'
 else:
     _url = 'http://127.0.0.1:50021'
@@ -55,8 +56,8 @@ async def create_wav_sound(text: str) -> bool:
                 res = await r.json()
                 print(res)
                 return False
-    with open('query.json', mode='w', encoding='utf_8_sig') as fp:
-        fp.write(json.dumps(query, indent=4))
+    # with open('query.json', mode='w', encoding='utf_8_sig') as fp:
+    #     fp.write(json.dumps(query, indent=4))
 
     # 音声の取得
     endpoint: str = f'{URL}/synthesis'
@@ -80,6 +81,20 @@ async def create_wav_sound(text: str) -> bool:
                 print(res)
                 return False
 
+async def get_style_list() -> list[Speaker]:
+    endpoint: str = f'{URL}/speakers'
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=endpoint) as r:
+            if r.status == 200:
+                res = await r.json()
+            else:
+                res = await r.json()
+                print(res)
+                return {}
+    result: list[Speaker] = (Speaker(**r) for r in res)
+    return result
+
 if __name__ == '__main__':
     text: str = "こんにちは"
-    asyncio.run(create_wav_sound(text))
+    # asyncio.run(create_wav_sound(text))
+    speakers: list[Speaker] = asyncio.run(get_style_list())

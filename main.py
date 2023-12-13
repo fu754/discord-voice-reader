@@ -3,7 +3,8 @@ import re
 import asyncio
 import discord
 from discord import app_commands
-from voicevox import create_wav_sound
+from voicevox import create_wav_sound, get_style_list
+from typedef.Speaker import Speaker
 from enum import Enum, auto
 from typing import Final
 
@@ -88,6 +89,17 @@ async def system_stop(interaction: discord.Interaction) -> None:
         return
     await interaction.guild.voice_client.disconnect()
     await interaction.response.send_message('退席しました', ephemeral=False)
+
+@tree.command(name="get_list", description="スタイルの一覧を表示する")
+async def get_list(interaction: discord.Interaction) -> None:
+    speaker_list: list[Speaker] = await get_style_list()
+
+    text: str = '## スタイル一覧\n'
+    for speaker in speaker_list:
+        text += f'### {speaker.name}\n'
+        for style in speaker.styles:
+            text += f'- {style["id"]} : {style["name"]}\n'
+    await interaction.response.send_message(text)
 
 # 通常のメッセージ受信時
 @client.event
