@@ -20,7 +20,7 @@ _env: Env
 if os.environ.get('ENV') == 'prod':
     _env = Env.prod
 elif os.environ.get('ENV') == 'dev':
-    _env = Env.prod
+    _env = Env.dev
 else:
     raise ValueError('ENV is invalid value (set prod or dev)')
 ENV: Final[Env] = _env
