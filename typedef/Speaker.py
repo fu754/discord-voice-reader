@@ -1,7 +1,5 @@
 from enum import Enum
 from uuid import UUID
-from typing import List
-
 
 class Style:
     name: str
@@ -32,10 +30,10 @@ class Speaker:
     supported_features: SupportedFeatures
     name: str
     speaker_uuid: UUID
-    styles: List[Style]
+    styles: list[Style]
     version: Version
 
-    def __init__(self, supported_features: SupportedFeatures, name: str, speaker_uuid: UUID, styles: List[Style], version: Version) -> None:
+    def __init__(self, supported_features: SupportedFeatures, name: str, speaker_uuid: UUID, styles: list[Style], version: Version) -> None:
         self.supported_features = supported_features
         self.name = name
         self.speaker_uuid = speaker_uuid

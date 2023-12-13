@@ -36,9 +36,9 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
     """
     voicevox engineのAPIを呼び出して音声を生成する
 
-    Parameters:
-        style_id : int : style_idを指定する
-        text : str : 音声生成するテキスト
+    Args:
+        style_id(int): style_idを指定する
+        text(str): 音声生成するテキスト
     Returns:
         bool : 生成に成功したか
     """
@@ -82,6 +82,12 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
                 return False
 
 async def get_style_list() -> list[Speaker]:
+    """
+    スタイル一覧を取得する
+
+    Returns:
+        list[Speaker]: スタイル一覧
+    """
     endpoint: str = f'{URL}/speakers'
     async with aiohttp.ClientSession() as session:
         async with session.get(url=endpoint) as r:
