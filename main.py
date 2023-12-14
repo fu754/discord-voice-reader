@@ -115,7 +115,7 @@ async def system_stop(interaction: discord.Interaction) -> None:
 
 # スタイル一覧表示コマンド
 @tree.command(name="style_list", description="スタイルの一覧を表示する")
-async def get_list(interaction: discord.Interaction) -> None:
+async def style_list(interaction: discord.Interaction) -> None:
     speaker_list: Union[list[Speaker], None] = await get_style_list()
     if not speaker_list:
         await interaction.response.send_message('スタイル一覧の取得に失敗しました')
