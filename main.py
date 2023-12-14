@@ -161,6 +161,31 @@ async def change_style(interaction: discord.Interaction, id: int) -> None:
             print(f'読み上げ済み: {text}')
     return
 
+# 春日部つむぎさん
+@tree.command(name="default_style", description="春日部つむぎさん")
+async def default_style(interaction: discord.Interaction) -> None:
+    global current_style_id
+    text: str = f'現在のスタイル: {STYLE_LIST[current_style_id]}'
+    old_style: str = STYLE_LIST[current_style_id]
+    current_style_id = STYLE_ID
+    new_style: str = STYLE_LIST[current_style_id]
+    text: str = f'スタイルを変更しました: {old_style} -> {new_style}'
+    await interaction.response.send_message(text)
+
+    if interaction.guild.voice_client:
+        if interaction.guild.voice_client.is_playing():
+            pass
+        else:
+            text = 'スタイルを変更しました'
+            is_created: bool = await create_wav_sound(current_style_id, text)
+            if not is_created:
+                await interaction.response.send_message('音声ファイルの生成に失敗しました')
+                return
+            wav_sound = discord.FFmpegPCMAudio("out.wav")
+            interaction.guild.voice_client.play(wav_sound)
+            print(f'読み上げ済み: {text}')
+    return
+
 # 通常のメッセージ受信時
 @client.event
 async def on_message(message: discord.Message) -> None:
