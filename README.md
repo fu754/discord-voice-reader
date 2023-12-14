@@ -1,6 +1,8 @@
 # Discordテキストチャット読み上げbot
+VOICEVOX ENGINEとdiscord.pyを利用したテキストチャット読み上げ(TTS)botです。
 ## クレジット
 - [VOICEVOX ENGINE](https://github.com/VOICEVOX/voicevox_engine)
+- [discord.py](https://github.com/Rapptz/discord.py)
 
 ## 環境構築と起動
 ### 必要
