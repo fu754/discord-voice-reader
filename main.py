@@ -114,7 +114,7 @@ async def system_stop(interaction: discord.Interaction) -> None:
     return
 
 # スタイル一覧表示コマンド
-@tree.command(name="get_list", description="スタイルの一覧を表示する")
+@tree.command(name="style_list", description="スタイルの一覧を表示する")
 async def get_list(interaction: discord.Interaction) -> None:
     speaker_list: Union[list[Speaker], None] = await get_style_list()
     if not speaker_list:
