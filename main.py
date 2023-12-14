@@ -30,6 +30,9 @@ DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
 
 # デフォルトのスタイルIDの設定
 STYLE_ID: Final[int] = int(os.environ.get('DEFAULT_STYLE_ID'))
+STYLE_LIST: list = []
+global current_style_id
+current_style_id: int = STYLE_ID
 
 # インスタンス作成
 intents = discord.Intents.default()
@@ -48,9 +51,21 @@ def omit_special_word(text: str) -> str:
 # 起動時に実行される部分
 @client.event
 async def on_ready() -> None:
-    print(f'We have logged in as {client.user}')
-    synced_cmd = await tree.sync() # スラッシュコマンドを同期する
+    # style一覧のリストを作成
+    speaker_list: Union[list[Speaker], None] = await get_style_list()
+    if not speaker_list:
+        raise Exception('speaker_listの取得に失敗しました')
+    for speaker in speaker_list:
+        for style in speaker.styles:
+            style_name = f'{speaker.name} ({style["name"]})'
+            STYLE_LIST.insert(int(style['id']), style_name)
+    print(STYLE_LIST)
+
+    # スラッシュコマンドを同期する
+    synced_cmd = await tree.sync()
     print(synced_cmd)
+
+    print(f'We have logged in as {client.user}')
     return
 
 # testコマンド
@@ -69,18 +84,19 @@ async def system_start(interaction: discord.Interaction) -> None:
     vc = interaction.user.voice.channel
     try:
         await vc.connect()
-        text: str = 'ボイスチャンネルに参加しました'
+        text: str = f'ボイスチャンネルに参加しました [現在のスタイル: {STYLE_LIST[current_style_id]}]'
+        speak_text: str = 'ボイスチャットに参加しました'
         await interaction.response.send_message(text, ephemeral=False)
 
         # 参加時の音声生成
-        is_created: bool = await create_wav_sound(STYLE_ID, text)
+        is_created: bool = await create_wav_sound(current_style_id, speak_text)
         if not is_created:
             await interaction.response.send_message('音声ファイルの生成に失敗しました')
             return
         wav_sound = discord.FFmpegPCMAudio("out.wav")
         await asyncio.sleep(1)
         interaction.guild.voice_client.play(wav_sound)
-        print(f'読み上げ済み: {text}')
+        print(f'読み上げ済み: {speak_text}')
     except discord.errors.ClientException as e:
         await interaction.response.send_message('既にボイスチャンネルに参加しています。一度終了してから再実行してください。', ephemeral=False)
     except:
@@ -113,6 +129,23 @@ async def get_list(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(text)
     return
 
+# 現在のスタイルを確認するコマンド
+@tree.command(name="check_style", description="現在のスタイルを確認する")
+async def check_style(interaction: discord.Interaction) -> None:
+    text: str = f'現在のスタイル: {STYLE_LIST[current_style_id]}'
+    await interaction.response.send_message(text)
+    return
+
+# スタイルを変更するコマンド
+@tree.command(name="change_style", description="スタイルを変更する")
+async def check_style(interaction: discord.Interaction, style_id: int) -> None:
+    old_style: str = STYLE_LIST[current_style_id]
+    current_style_id = style_id
+    new_style: str = STYLE_ID[current_style_id]
+    text: str = f'スタイルを変更しました: {old_style} -> {new_style}'
+    await interaction.response.send_message(text)
+    return
+
 # 通常のメッセージ受信時
 @client.event
 async def on_message(message: discord.Message) -> None:
@@ -128,7 +161,7 @@ async def on_message(message: discord.Message) -> None:
         text = omit_special_word(text)
 
         # 音声の生成
-        is_created: bool = await create_wav_sound(STYLE_ID, text)
+        is_created: bool = await create_wav_sound(current_style_id, text)
         if not is_created:
             await message.channel.send('音声ファイルの生成に失敗しました')
             return
