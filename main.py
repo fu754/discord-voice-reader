@@ -85,7 +85,7 @@ async def system_start(interaction: discord.Interaction) -> None:
     try:
         await vc.connect()
         text: str = f'ボイスチャンネルに参加しました [現在のスタイル: {STYLE_LIST[current_style_id]}]'
-        speak_text: str = 'ボイスチャットに参加しました'
+        speak_text: str = 'ボイスチャンネルに参加しました'
         await interaction.response.send_message(text, ephemeral=False)
 
         # 参加時の音声生成
@@ -138,12 +138,27 @@ async def check_style(interaction: discord.Interaction) -> None:
 
 # スタイルを変更するコマンド
 @tree.command(name="change_style", description="スタイルを変更する")
-async def check_style(interaction: discord.Interaction, style_id: int) -> None:
+async def change_style(interaction: discord.Interaction, id: int) -> None:
+    global current_style_id
+    text: str = f'現在のスタイル: {STYLE_LIST[current_style_id]}'
     old_style: str = STYLE_LIST[current_style_id]
-    current_style_id = style_id
-    new_style: str = STYLE_ID[current_style_id]
+    current_style_id = int(id)
+    new_style: str = STYLE_LIST[current_style_id]
     text: str = f'スタイルを変更しました: {old_style} -> {new_style}'
     await interaction.response.send_message(text)
+
+    if interaction.guild.voice_client:
+        if interaction.guild.voice_client.is_playing():
+            pass
+        else:
+            text = 'スタイルを変更しました'
+            is_created: bool = await create_wav_sound(current_style_id, text)
+            if not is_created:
+                await interaction.response.send_message('音声ファイルの生成に失敗しました')
+                return
+            wav_sound = discord.FFmpegPCMAudio("out.wav")
+            interaction.guild.voice_client.play(wav_sound)
+            print(f'読み上げ済み: {text}')
     return
 
 # 通常のメッセージ受信時
