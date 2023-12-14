@@ -1,5 +1,4 @@
 venv/
 .env
-query.json
 out.wav
 __pycache__/
