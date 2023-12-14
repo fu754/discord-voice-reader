@@ -54,10 +54,10 @@ async def on_ready() -> None:
     return
 
 # testコマンド
-@tree.command(name="test", description="これはテストコマンドです。")
+@tree.command(name="ping", description="サーバーが応答を返すか確認用")
 async def test(interaction: discord.Interaction) -> None:
     username = interaction.user.name
-    await interaction.response.send_message(f'テストコマンドを実行しました (receive from: {username})', ephemeral=False) # Trueにすると実行者のみ
+    await interaction.response.send_message('pingコマンドの受信に成功しました', ephemeral=False) # Trueにすると実行者のみ
     return
 
 # 開始コマンド
