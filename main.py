@@ -5,17 +5,12 @@ import discord
 from discord import app_commands
 from voicevox import create_wav_sound, get_style_list
 from typedef.Speaker import Speaker
-from enum import Enum, auto
+from typedef.General import Env
 from typing import Final, Union
-
 from dotenv import load_dotenv
 load_dotenv()
 
 # envの設定
-class Env(Enum):
-    dev = auto()
-    prod = auto()
-
 _env: Env
 if os.environ.get('ENV') == 'prod':
     _env = Env.prod
@@ -46,7 +41,6 @@ re_emoji: Final[re.Pattern[str]] = re.compile(r'<:.*?>')
 re_reply_user_id: Final[re.Pattern[str]] = re.compile(r'<@(\d+)>')
 re_here: Final[re.Pattern[str]] = re.compile(r'@here')
 re_everyone: Final[re.Pattern[str]] = re.compile(r'@everyone')
-
 def omit_special_word(text: str) -> str:
     text = re_http.sub(" アドレス文字列 ", text)
     text = re_emoji.sub(" 絵文字 ", text)
