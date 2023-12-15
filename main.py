@@ -41,11 +41,18 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 # 除外する正規表現
+re_http: Final[re.Pattern[str]] = re.compile(r'https?://\S+')
+re_emoji: Final[re.Pattern[str]] = re.compile(r'<:.*?>')
+re_reply_user_id: Final[re.Pattern[str]] = re.compile(r'<@(\d+)>')
+re_here: Final[re.Pattern[str]] = re.compile(r'@here')
+re_everyone: Final[re.Pattern[str]] = re.compile(r'@everyone')
+
 def omit_special_word(text: str) -> str:
-    re_http = re.compile(r'https?://\S+')
     text = re_http.sub(" アドレス文字列 ", text)
-    re_emoji = re.compile(r'<:.*?>')
     text = re_emoji.sub(" 絵文字 ", text)
+    text = re_reply_user_id.sub(" リプライ ", text)
+    text = re_here.sub(" アットヒアー ", text)
+    text = re_everyone.sub(" アットエブリワン ", text)
     return text
 
 # 起動時に実行される部分
