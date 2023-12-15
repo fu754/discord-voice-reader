@@ -1,16 +1,11 @@
+import os
 import asyncio
-import json
 import aiohttp
 from typing import Final, Union
-import os
-from enum import Enum, auto
 from typedef.Speaker import Speaker
+from typedef.General import Env
 from dotenv import load_dotenv
 load_dotenv()
-
-class Env(Enum):
-    dev = auto()
-    prod = auto()
 
 _env: Env
 if os.environ.get('ENV') == 'prod':
