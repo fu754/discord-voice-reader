@@ -25,8 +25,7 @@ DISCORD_BOT_TOKEN: Final[str] =os.environ.get('DISCORD_BOT_TOKEN')
 
 # デフォルトのスタイルIDの設定
 STYLE_ID: Final[int] = int(os.environ.get('DEFAULT_STYLE_ID'))
-STYLE_LIST: list = []
-global current_style_id
+STYLE_LIST: dict = {}
 current_style_id: int = STYLE_ID
 
 # インスタンス作成
@@ -59,7 +58,7 @@ async def on_ready() -> None:
     for speaker in speaker_list:
         for style in speaker.styles:
             style_name = f'{speaker.name} ({style["name"]})'
-            STYLE_LIST.insert(int(style['id']), style_name)
+            STYLE_LIST[int(style['id'])] = style_name
     print(STYLE_LIST)
 
     # スラッシュコマンドを同期する
