@@ -233,11 +233,14 @@ async def on_message(message: discord.Message) -> None:
     else:
         pass
 
+    # Twitterのアドレスの文字列置換処理
     text: str = message.content
     is_replaced, text = replace_twitter_url(text)
     if is_replaced:
         replace_info_text = f'[TwitterのURL文字列を置換しました]\n{text}'
         await message.channel.send(replace_info_text)
+    ## 終わり Twitterのアドレスの文字列置換処理
+
     return
 
 # bot起動
