@@ -49,10 +49,13 @@ def omit_special_word(text: str) -> str:
     return text
 
 # 置換するTwitterのアドレス
-re_twitter_url: Final[re.Pattern[str]] = re.compile(r'https:\/\/((x\.com)|(twitter\.com))\/')
+re_twitter_url: Final[re.Pattern[str]] = re.compile(r'https:\/\/((x\.com)|(twitter\.com))\/.*\/status/')
+re_twitter_host: Final[re.Pattern[str]] = re.compile(r'https:\/\/((x\.com)|(twitter\.com))\/')
 def replace_twitter_url(text: str) -> tuple[bool, str]:
     """
     Twitterのアドレスをvxtwitter.comに置換する
+    ただし、ツイートへのリンクのみ(statusが含まれるURL)
+    ツイートへのリンクとユーザーページへのリンクが混在してたら両方置換されそう
 
     Args:
         text(str): 本文のテキスト
@@ -61,7 +64,7 @@ def replace_twitter_url(text: str) -> tuple[bool, str]:
         str : そのままのテキスト、または置換後のテキスト
     """
     if re_twitter_url.search(text):
-        return True, re_twitter_url.sub('https://vxtwitter.com/', text)
+        return True, re_twitter_host.sub('https://vxtwitter.com/', text)
     else:
         return False, text
 
