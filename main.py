@@ -56,6 +56,8 @@ def replace_twitter_url(text: str) -> tuple[bool, str]:
     Twitterのアドレスをvxtwitter.comに置換する
     ただし、ツイートへのリンクのみ(statusが含まれるURL)
     ツイートへのリンクとユーザーページへのリンクが混在してたら両方置換されそう
+    https://github.com/dylanpdx/BetterTwitFix
+    →x.comはfixvx.comにしたほうがいい？
 
     Args:
         text(str): 本文のテキスト
