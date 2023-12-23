@@ -48,6 +48,23 @@ def omit_special_word(text: str) -> str:
     text = re_everyone.sub(" アットエブリワン ", text)
     return text
 
+# 置換するTwitterのアドレス
+re_twitter_url: Final[re.Pattern[str]] = re.compile(r'https:\/\/((x\.com)|(twitter\.com))\/')
+def replace_twitter_url(text: str) -> tuple[bool, str]:
+    """
+    Twitterのアドレスをvxtwitter.comに置換する
+
+    Args:
+        text(str): 本文のテキスト
+    Returns:
+        bool : 置換したかどうか
+        str : そのままのテキスト、または置換後のテキスト
+    """
+    if re_twitter_url.search(text):
+        return True, re_twitter_url.sub('https://vxtwitter.com/', text)
+    else:
+        return False, text
+
 # 起動時に実行される部分
 @client.event
 async def on_ready() -> None:
@@ -210,6 +227,12 @@ async def on_message(message: discord.Message) -> None:
         print(f'読み上げ済み: {text}')
     else:
         pass
+
+    text: str = message.content
+    is_replaced, text = replace_twitter_url(text)
+    if is_replaced:
+        replace_info_text = f'[TwitterのURL文字列を置換しました]\n{text}'
+        await message.channel.send(replace_info_text)
     return
 
 # bot起動
