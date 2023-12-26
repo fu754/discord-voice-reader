@@ -2,35 +2,16 @@ import os
 import re
 import asyncio
 import discord
-import logging
-import logging.handlers
 from discord import app_commands
 from voicevox import create_wav_sound, get_style_list
+from LogController import get_logger
 from typedef.Speaker import Speaker
 from typedef.General import Env
 from typing import Final, Union
 from dotenv import load_dotenv
 load_dotenv()
 
-log_dir = './log/'
-if not os.path.isdir(log_dir):
-    os.makedirs(log_dir)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logging.getLogger('discord.http').setLevel(logging.INFO)
-# 32MB * 5個のログを保存する
-logger_handler = logging.handlers.RotatingFileHandler(
-    filename=f'{log_dir}app.log',
-    encoding='utf-8',
-    maxBytes=32 * 1024 * 1024,
-    backupCount=5,
-    mode='w'
-)
-dt_fmt = '%Y-%m-%d %H:%M:%S'
-formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
-logger_handler.setFormatter(formatter)
-logger.addHandler(logger_handler)
+logger = get_logger(__name__)
 
 # envの設定
 _env: Env
