@@ -2,3 +2,4 @@ venv/
 .env
 out.wav
 __pycache__/
+**/*/app.log

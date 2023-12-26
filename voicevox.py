@@ -1,11 +1,33 @@
 import os
 import asyncio
 import aiohttp
+import logging
+import logging.handlers
 from typing import Final, Union
 from typedef.Speaker import Speaker
 from typedef.General import Env
 from dotenv import load_dotenv
 load_dotenv()
+
+log_dir = './log/'
+if not os.path.isdir(log_dir):
+    os.makedirs(log_dir)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logging.getLogger('discord.http').setLevel(logging.INFO)
+# 32MB * 5個のログを保存する
+logger_handler = logging.handlers.RotatingFileHandler(
+    filename=f'{log_dir}app.log',
+    encoding='utf-8',
+    maxBytes=32 * 1024 * 1024,
+    backupCount=5,
+    mode='w'
+)
+dt_fmt = '%Y-%m-%d %H:%M:%S'
+formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
+logger_handler.setFormatter(formatter)
+logger.addHandler(logger_handler)
 
 _env: Env
 if os.environ.get('ENV') == 'prod':
@@ -85,13 +107,17 @@ async def get_style_list() -> Union[list[Speaker], None]:
     """
     endpoint: str = f'{URL}/speakers'
     async with aiohttp.ClientSession() as session:
-        async with session.get(url=endpoint) as r:
-            if r.status == 200:
-                res = await r.json()
-            else:
-                res = await r.json()
-                print(res)
-                return None
+        try:
+            async with session.get(url=endpoint) as r:
+                if r.status == 200:
+                    res = await r.json()
+                else:
+                    res = await r.json()
+                    print(res)
+                    return None
+        except Exception as e:
+            logger.error(e)
+            return None
     result: list[Speaker] = (Speaker(**r) for r in res)
     return result
 

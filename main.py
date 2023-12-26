@@ -2,6 +2,8 @@ import os
 import re
 import asyncio
 import discord
+import logging
+import logging.handlers
 from discord import app_commands
 from voicevox import create_wav_sound, get_style_list
 from typedef.Speaker import Speaker
@@ -9,6 +11,26 @@ from typedef.General import Env
 from typing import Final, Union
 from dotenv import load_dotenv
 load_dotenv()
+
+log_dir = './log/'
+if not os.path.isdir(log_dir):
+    os.makedirs(log_dir)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logging.getLogger('discord.http').setLevel(logging.INFO)
+# 32MB * 5個のログを保存する
+logger_handler = logging.handlers.RotatingFileHandler(
+    filename=f'{log_dir}app.log',
+    encoding='utf-8',
+    maxBytes=32 * 1024 * 1024,
+    backupCount=5,
+    mode='w'
+)
+dt_fmt = '%Y-%m-%d %H:%M:%S'
+formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
+logger_handler.setFormatter(formatter)
+logger.addHandler(logger_handler)
 
 # envの設定
 _env: Env
@@ -76,12 +98,13 @@ async def on_ready() -> None:
     # style一覧のリストを作成
     speaker_list: Union[list[Speaker], None] = await get_style_list()
     if not speaker_list:
-        raise Exception('speaker_listの取得に失敗しました')
+        logger.error('speaker_listの取得に失敗しました。プログラムを終了します。')
+        exit()
     for speaker in speaker_list:
         for style in speaker.styles:
             style_name = f'{speaker.name} ({style["name"]})'
             STYLE_LIST[int(style['id'])] = style_name
-    print(STYLE_LIST)
+    logger.info(f'スタイル一覧: {STYLE_LIST}')
 
     # スラッシュコマンドを同期する
     synced_cmd = await tree.sync()
@@ -244,4 +267,5 @@ async def on_message(message: discord.Message) -> None:
     return
 
 # bot起動
-client.run(DISCORD_BOT_TOKEN)
+if __name__ == '__main__':
+    client.run(DISCORD_BOT_TOKEN, log_handler=None)
