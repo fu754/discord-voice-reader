@@ -31,7 +31,7 @@ def get_logger(name: str) -> Logger:
         backupCount=5,
         mode='w'
     )
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
 
     # 標準出力ハンドラーの設定
@@ -39,13 +39,13 @@ def get_logger(name: str) -> Logger:
     stream_handler = logging.StreamHandler(
         stream=sys.stdout
     )
-    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setLevel(logging.INFO)
     stream_handler.setFormatter(formatter)
 
     # loggerの設定
     logging.basicConfig(level=logging.NOTSET, handlers=[file_handler, stream_handler])
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     logging.getLogger('discord.http').setLevel(logging.INFO)
 
     return logger
