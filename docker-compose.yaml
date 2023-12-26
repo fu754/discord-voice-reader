@@ -11,8 +11,11 @@ services:
     #         - driver: nvidia
     #           count: 1
     #           capabilities: [gpu]
+
   main:
     build: .
     command: python main.py
+    volumes:
+      - './log:/app/log'
     depends_on:
       - voicevox
