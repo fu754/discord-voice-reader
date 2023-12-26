@@ -4,11 +4,14 @@ import asyncio
 import discord
 from discord import app_commands
 from voicevox import create_wav_sound, get_style_list
+from LogController import get_logger
 from typedef.Speaker import Speaker
 from typedef.General import Env
 from typing import Final, Union
 from dotenv import load_dotenv
 load_dotenv()
+
+logger = get_logger(__name__)
 
 # envの設定
 _env: Env
@@ -76,24 +79,23 @@ async def on_ready() -> None:
     # style一覧のリストを作成
     speaker_list: Union[list[Speaker], None] = await get_style_list()
     if not speaker_list:
-        raise Exception('speaker_listの取得に失敗しました')
+        logger.error('speaker_listの取得に失敗しました。プログラムを終了します。')
+        exit()
     for speaker in speaker_list:
         for style in speaker.styles:
             style_name = f'{speaker.name} ({style["name"]})'
             STYLE_LIST[int(style['id'])] = style_name
-    print(STYLE_LIST)
+    logger.info(f'スタイル一覧: {STYLE_LIST}')
 
     # スラッシュコマンドを同期する
     synced_cmd = await tree.sync()
-    print(synced_cmd)
-
-    print(f'We have logged in as {client.user}')
+    logger.info(f'コマンドを同期しました ({synced_cmd})')
+    logger.info('システムを起動しました')
     return
 
 # testコマンド
 @tree.command(name="ping", description="サーバーが応答を返すか確認用")
 async def test(interaction: discord.Interaction) -> None:
-    username = interaction.user.name
     await interaction.response.send_message('pingコマンドの受信に成功しました', ephemeral=False) # Trueにすると実行者のみ
     return
 
@@ -118,10 +120,12 @@ async def system_start(interaction: discord.Interaction) -> None:
         wav_sound = discord.FFmpegPCMAudio("out.wav")
         await asyncio.sleep(1)
         interaction.guild.voice_client.play(wav_sound)
-        print(f'読み上げ済み: {speak_text}')
+        logger.info(f'読み上げ済み「{speak_text}」')
     except discord.errors.ClientException as e:
+        logger.error(f'ボイスチャンネル重複参加エラー ({e})')
         await interaction.response.send_message('既にボイスチャンネルに参加しています。一度終了してから再実行してください。', ephemeral=False)
     except:
+        logger.error(f'ボイスチャンネル参加時の例外エラー ({e})')
         await interaction.response.send_message('ボイスチャンネルへの接続に失敗しました', ephemeral=False)
     return
 
@@ -140,6 +144,7 @@ async def system_stop(interaction: discord.Interaction) -> None:
 async def style_list(interaction: discord.Interaction) -> None:
     speaker_list: Union[list[Speaker], None] = await get_style_list()
     if not speaker_list:
+        logger.error(f'スタイル一覧の取得に失敗しました')
         await interaction.response.send_message('スタイル一覧の取得に失敗しました')
         return
 
@@ -176,11 +181,12 @@ async def change_style(interaction: discord.Interaction, id: int) -> None:
             text = 'スタイルを変更しました'
             is_created: bool = await create_wav_sound(current_style_id, text)
             if not is_created:
+                logger.error('音声ファイルの生成に失敗しました')
                 await interaction.response.send_message('音声ファイルの生成に失敗しました')
                 return
             wav_sound = discord.FFmpegPCMAudio("out.wav")
             interaction.guild.voice_client.play(wav_sound)
-            print(f'読み上げ済み: {text}')
+            logger.info(f'読み上げ済み: {text}')
     return
 
 # 春日部つむぎさん
@@ -201,11 +207,12 @@ async def default_style(interaction: discord.Interaction) -> None:
             text = 'スタイルを変更しました'
             is_created: bool = await create_wav_sound(current_style_id, text)
             if not is_created:
+                logger.error('音声ファイルの生成に失敗しました')
                 await interaction.response.send_message('音声ファイルの生成に失敗しました')
                 return
             wav_sound = discord.FFmpegPCMAudio("out.wav")
             interaction.guild.voice_client.play(wav_sound)
-            print(f'読み上げ済み: {text}')
+            logger.info(f'読み上げ済み: {text}')
     return
 
 # 通常のメッセージ受信時
@@ -225,11 +232,12 @@ async def on_message(message: discord.Message) -> None:
         # 音声の生成
         is_created: bool = await create_wav_sound(current_style_id, text)
         if not is_created:
+            logger.error('音声ファイルの生成に失敗しました')
             await message.channel.send('音声ファイルの生成に失敗しました')
             return
         wav_sound = discord.FFmpegPCMAudio("out.wav")
         message.guild.voice_client.play(wav_sound)
-        print(f'読み上げ済み: {text}')
+        logger.info(f'読み上げ済み: {text}')
     else:
         pass
 
@@ -244,4 +252,6 @@ async def on_message(message: discord.Message) -> None:
     return
 
 # bot起動
-client.run(DISCORD_BOT_TOKEN)
+if __name__ == '__main__':
+    # loggerを設定しているのでdiscord.clientのロガーは無効化する
+    client.run(DISCORD_BOT_TOKEN, log_handler=None)

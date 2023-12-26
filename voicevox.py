@@ -1,11 +1,15 @@
 import os
 import asyncio
 import aiohttp
+
+from LogController import get_logger
 from typing import Final, Union
 from typedef.Speaker import Speaker
 from typedef.General import Env
 from dotenv import load_dotenv
 load_dotenv()
+
+logger = get_logger(__name__)
 
 _env: Env
 if os.environ.get('ENV') == 'prod':
@@ -44,15 +48,17 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
         'text': text
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=endpoint, params=params) as r:
-            if r.status == 200:
-                query = await r.json()
-            else:
-                res = await r.json()
-                print(res)
-                return False
-    # with open('query.json', mode='w', encoding='utf_8_sig') as fp:
-    #     fp.write(json.dumps(query, indent=4))
+        try:
+            async with session.post(url=endpoint, params=params) as r:
+                if r.status == 200:
+                    query = await r.json()
+                else:
+                    res = await r.json()
+                    logger.error(f'クエリの取得に失敗しました (status code: {r.status}) ({res})')
+                    return False
+        except Exception as e:
+            logger.error(f'クエリの取得に失敗しました (exception error) ({e})')
+            return False
 
     # 音声の取得
     endpoint: str = f'{URL}/synthesis'
@@ -61,20 +67,25 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=endpoint, params=params2, json=query) as r:
-            if r.status == 200:
-                # 受信したストリームをCHUNK_SIZEごとに書き込んでいく
-                with open('out.wav', mode='wb') as fp:
-                    while(True):
-                        chunk = await r.content.read(CHUNK_SIZE)
-                        if not chunk:
-                            break
-                        fp.write(chunk)
-                return True
-            else:
-                res = await r.json()
-                print(res)
-                return False
+        try:
+            async with session.post(url=endpoint, params=params2, json=query) as r:
+                if r.status == 200:
+                    # 受信したストリームをCHUNK_SIZEごとに書き込んでいく
+                    with open('out.wav', mode='wb') as fp:
+                        while(True):
+                            chunk = await r.content.read(CHUNK_SIZE)
+                            if not chunk:
+                                break
+                            fp.write(chunk)
+                    logger.info(f'音声を生成しました「{text}」')
+                    return True
+                else:
+                    res = await r.json()
+                    logger.error(f'音声の取得に失敗しました (status code: {r.status}) ({res})')
+                    return False
+        except Exception as e:
+            logger.error(f'音声の取得に失敗しました (exception error) ({e})')
+            return False
 
 async def get_style_list() -> Union[list[Speaker], None]:
     """
@@ -85,13 +96,17 @@ async def get_style_list() -> Union[list[Speaker], None]:
     """
     endpoint: str = f'{URL}/speakers'
     async with aiohttp.ClientSession() as session:
-        async with session.get(url=endpoint) as r:
-            if r.status == 200:
-                res = await r.json()
-            else:
-                res = await r.json()
-                print(res)
-                return None
+        try:
+            async with session.get(url=endpoint) as r:
+                if r.status == 200:
+                    res = await r.json()
+                else:
+                    res = await r.json()
+                    logger.error(f'スタイル一覧の取得に失敗しました (status code: {r.status}) ({res})')
+                    return None
+        except Exception as e:
+            logger.error(f'スタイル一覧の取得に失敗しました (exception error) ({e})')
+            return None
     result: list[Speaker] = (Speaker(**r) for r in res)
     return result
 
