@@ -5,13 +5,14 @@ import discord
 from discord import app_commands
 from voicevox import create_wav_sound, get_style_list
 from LogController import get_logger
+from logging import Logger
 from typedef.Speaker import Speaker
 from typedef.General import Env
 from typing import Final, Union
 from dotenv import load_dotenv
 load_dotenv()
 
-logger = get_logger(__name__)
+logger: Final[Logger] = get_logger(__name__)
 
 # envの設定
 _env: Env
@@ -124,7 +125,7 @@ async def system_start(interaction: discord.Interaction) -> None:
     except discord.errors.ClientException as e:
         logger.error(f'ボイスチャンネル重複参加エラー ({e})')
         await interaction.response.send_message('既にボイスチャンネルに参加しています。一度終了してから再実行してください。', ephemeral=False)
-    except:
+    except Exception as e:
         logger.error(f'ボイスチャンネル参加時の例外エラー ({e})')
         await interaction.response.send_message('ボイスチャンネルへの接続に失敗しました', ephemeral=False)
     return

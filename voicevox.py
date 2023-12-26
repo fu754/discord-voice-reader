@@ -1,15 +1,15 @@
 import os
 import asyncio
 import aiohttp
-
 from LogController import get_logger
+from logging import Logger
 from typing import Final, Union
 from typedef.Speaker import Speaker
 from typedef.General import Env
 from dotenv import load_dotenv
 load_dotenv()
 
-logger = get_logger(__name__)
+logger: Final[Logger] = get_logger(__name__)
 
 _env: Env
 if os.environ.get('ENV') == 'prod':
