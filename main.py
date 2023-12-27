@@ -240,9 +240,11 @@ async def on_message(message: discord.Message) -> None:
         message.guild.voice_client.play(wav_sound)
         logger.info(f'読み上げ済み: {text}')
     else:
+        # ボイスチャットに参加していないときは何もしない
         pass
 
     # Twitterのアドレスの文字列置換処理
+    # ボイスチャットへの参加の可否に関わらず、Twitterのアドレスが含まれる文字列は置換してメッセージを送信する
     text: str = message.content
     is_replaced, text = replace_twitter_url(text)
     if is_replaced:
