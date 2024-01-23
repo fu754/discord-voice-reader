@@ -32,6 +32,9 @@ STYLE_ID: Final[int] = int(os.environ.get('DEFAULT_STYLE_ID'))
 STYLE_LIST: dict = {}
 current_style_id: int = STYLE_ID
 
+# TwitterのURLを置換するかのフラグ
+is_replace_twitter_url: bool = False
+
 # インスタンス作成
 intents = discord.Intents.default()
 intents.message_content = True
@@ -245,12 +248,13 @@ async def on_message(message: discord.Message) -> None:
 
     # Twitterのアドレスの文字列置換処理
     # ボイスチャットへの参加の可否に関わらず、Twitterのアドレスが含まれる文字列は置換してメッセージを送信する
-    text: str = message.content
-    is_replaced, text = replace_twitter_url(text)
-    if is_replaced:
-        replace_info_text = f'[TwitterのURL文字列を置換しました]\n{text}'
-        await message.channel.send(replace_info_text)
-    ## 終わり Twitterのアドレスの文字列置換処理
+    if is_replace_twitter_url:
+        text: str = message.content
+        is_replaced, text = replace_twitter_url(text)
+        if is_replaced:
+            replace_info_text = f'[TwitterのURL文字列を置換しました]\n{text}'
+            await message.channel.send(replace_info_text)
+        ## 終わり Twitterのアドレスの文字列置換処理
 
     return
 
