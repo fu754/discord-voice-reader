@@ -110,9 +110,16 @@ async def system_start(interaction: discord.Interaction) -> None:
         await interaction.response.send_message('ボイスチャンネルに参加していないユーザーからコマンドが実行されました', ephemeral=False)
         return
     vc = interaction.user.voice.channel
+
+    global is_replace_twitter_url
+    is_replace_twitter_url_text: str = ''
+    if is_replace_twitter_url:
+        is_replace_twitter_url_text = '有効'
+    else:
+        is_replace_twitter_url_text = '無効'
     try:
         await vc.connect()
-        text: str = f'ボイスチャンネルに参加しました [現在のスタイル: {STYLE_LIST[current_style_id]}]'
+        text: str = f'ボイスチャンネルに参加しました [現在のスタイル: {STYLE_LIST[current_style_id]}] [TwitterのURL置換処理: {is_replace_twitter_url_text}]'
         speak_text: str = 'ボイスチャンネルに参加しました'
         await interaction.response.send_message(text, ephemeral=False)
 
@@ -217,6 +224,20 @@ async def default_style(interaction: discord.Interaction) -> None:
             wav_sound = discord.FFmpegPCMAudio("out.wav")
             interaction.guild.voice_client.play(wav_sound)
             logger.info(f'読み上げ済み: {text}')
+    return
+
+@tree.command(name="toggle_twitter_url_replace", description="TwitterのURLの置換処理の有効/無効の切り替え")
+async def toggle_twitter_url_replace(interaction: discord.Interaction) -> None:
+    global is_replace_twitter_url
+
+    if is_replace_twitter_url:
+        is_replace_twitter_url = False
+        text = 'TwitterのURL置換処理を無効化しました'
+        await interaction.response.send_message(text)
+    else:
+        is_replace_twitter_url = True
+        text = 'TwitterのURL置換処理を有効化しました'
+        await interaction.response.send_message(text)
     return
 
 # 通常のメッセージ受信時
