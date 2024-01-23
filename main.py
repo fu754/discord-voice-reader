@@ -226,6 +226,7 @@ async def default_style(interaction: discord.Interaction) -> None:
             logger.info(f'読み上げ済み: {text}')
     return
 
+# TwitterのURLの置換処理のオンオフのトグルスイッチ
 @tree.command(name="toggle_twitter_url_replace", description="TwitterのURLの置換処理の有効/無効の切り替え")
 async def toggle_twitter_url_replace(interaction: discord.Interaction) -> None:
     global is_replace_twitter_url
