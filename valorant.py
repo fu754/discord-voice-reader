@@ -15,7 +15,7 @@ def load_team_member_json() -> list[Member]:
     """
     with open('./src/valorant/team_members.json', mode='r', encoding='utf_8_sig') as fp:
         __member_list = json.load(fp)
-    member_list = []
+    member_list: list[Member] = []
     for member in __member_list['members']:
         name = member['name']
         rank = member['rank']
