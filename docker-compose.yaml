@@ -4,6 +4,7 @@ services:
     image: "voicevox/voicevox_engine:cpu-ubuntu20.04-latest"
     ports:
       - "50021:50021"
+    restart: always
     # deploy:
     #   resources:
     #     reservations:
@@ -17,5 +18,6 @@ services:
     command: python main.py
     volumes:
       - './log:/app/log'
+    restart: always
     depends_on:
       - voicevox
