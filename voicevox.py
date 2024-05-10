@@ -44,7 +44,7 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
     # クエリの取得
     endpoint: str = f'{URL}/audio_query'
     params = {
-        'style_id': style_id,
+        'speaker': style_id,
         'text': text
     }
     async with aiohttp.ClientSession() as session:
@@ -63,7 +63,7 @@ async def create_wav_sound(style_id: int, text: str) -> bool:
     # 音声の取得
     endpoint: str = f'{URL}/synthesis'
     params2 = {
-        'style_id': style_id
+        'speaker': style_id
     }
 
     async with aiohttp.ClientSession() as session:
