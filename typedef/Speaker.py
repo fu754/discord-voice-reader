@@ -1,7 +1,8 @@
 from enum import Enum
 from uuid import UUID
+from typing import TypedDict
 
-class Style:
+class Style(TypedDict):
     name: str
     id: int
 
@@ -15,7 +16,7 @@ class PermittedSynthesisMorphing(Enum):
     SELF_ONLY = "SELF_ONLY"
 
 
-class SupportedFeatures:
+class SupportedFeatures(TypedDict):
     permitted_synthesis_morphing: PermittedSynthesisMorphing
 
     def __init__(self, permitted_synthesis_morphing: PermittedSynthesisMorphing) -> None:
@@ -26,7 +27,7 @@ class Version(Enum):
     THE_0145 = "0.14.5"
 
 
-class Speaker:
+class Speaker(TypedDict):
     supported_features: SupportedFeatures
     name: str
     speaker_uuid: UUID
