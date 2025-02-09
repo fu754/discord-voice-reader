@@ -32,9 +32,6 @@ STYLE_ID: Final[int] = int(os.environ.get('DEFAULT_STYLE_ID'))
 STYLE_LIST: dict = {}
 current_style_id: int = STYLE_ID
 
-# TwitterのURLを置換するかのフラグ
-is_replace_twitter_url: bool = False
-
 # インスタンス作成
 intents = discord.Intents.default()
 intents.message_content = True
@@ -54,28 +51,6 @@ def omit_special_word(text: str) -> str:
     text = re_here.sub(" アットヒアー ", text)
     text = re_everyone.sub(" アットエブリワン ", text)
     return text
-
-# 置換するTwitterのアドレス
-re_twitter_url: Final[re.Pattern[str]] = re.compile(r'https:\/\/((x\.com)|(twitter\.com))\/.*\/status/')
-re_twitter_host: Final[re.Pattern[str]] = re.compile(r'https:\/\/((x\.com)|(twitter\.com))\/')
-def replace_twitter_url(text: str) -> tuple[bool, str]:
-    """
-    Twitterのアドレスをvxtwitter.comに置換する
-    ただし、ツイートへのリンクのみ(statusが含まれるURL)
-    ツイートへのリンクとユーザーページへのリンクが混在してたら両方置換されそう
-    https://github.com/dylanpdx/BetterTwitFix
-    →x.comはfixvx.comにしたほうがいい？
-
-    Args:
-        text(str): 本文のテキスト
-    Returns:
-        bool : 置換したかどうか
-        str : そのままのテキスト、または置換後のテキスト
-    """
-    if re_twitter_url.search(text):
-        return True, re_twitter_host.sub('https://vxtwitter.com/', text)
-    else:
-        return False, text
 
 # 起動時に実行される部分
 @client.event
@@ -111,15 +86,9 @@ async def system_start(interaction: discord.Interaction) -> None:
         return
     vc = interaction.user.voice.channel
 
-    global is_replace_twitter_url
-    is_replace_twitter_url_text: str = ''
-    if is_replace_twitter_url:
-        is_replace_twitter_url_text = '有効'
-    else:
-        is_replace_twitter_url_text = '無効'
     try:
         await vc.connect()
-        text: str = f'ボイスチャンネルに参加しました [現在のスタイル: {STYLE_LIST[current_style_id]}] [TwitterのURL置換処理: {is_replace_twitter_url_text}]'
+        text: str = f'ボイスチャンネルに参加しました [現在のスタイル: {STYLE_LIST[current_style_id]}]'
         speak_text: str = 'ボイスチャンネルに参加しました'
         await interaction.response.send_message(text, ephemeral=False)
 
@@ -226,21 +195,6 @@ async def default_style(interaction: discord.Interaction) -> None:
             logger.info(f'読み上げ済み: {text}')
     return
 
-# TwitterのURLの置換処理のオンオフのトグルスイッチ
-@tree.command(name="toggle_twitter_url_replace", description="TwitterのURLの置換処理の有効/無効の切り替え")
-async def toggle_twitter_url_replace(interaction: discord.Interaction) -> None:
-    global is_replace_twitter_url
-
-    if is_replace_twitter_url:
-        is_replace_twitter_url = False
-        text = 'TwitterのURL置換処理を無効化しました'
-        await interaction.response.send_message(text)
-    else:
-        is_replace_twitter_url = True
-        text = 'TwitterのURL置換処理を有効化しました'
-        await interaction.response.send_message(text)
-    return
-
 # 通常のメッセージ受信時
 @client.event
 async def on_message(message: discord.Message) -> None:
@@ -267,16 +221,6 @@ async def on_message(message: discord.Message) -> None:
     else:
         # ボイスチャットに参加していないときは何もしない
         pass
-
-    # Twitterのアドレスの文字列置換処理
-    # ボイスチャットへの参加の可否に関わらず、Twitterのアドレスが含まれる文字列は置換してメッセージを送信する
-    if is_replace_twitter_url:
-        text: str = message.content
-        is_replaced, text = replace_twitter_url(text)
-        if is_replaced:
-            replace_info_text = f'[TwitterのURL文字列を置換しました]\n{text}'
-            await message.channel.send(replace_info_text)
-        ## 終わり Twitterのアドレスの文字列置換処理
 
     return
 
