@@ -61,8 +61,8 @@ async def on_ready() -> None:
         logger.error('speaker_listの取得に失敗しました。プログラムを終了します。')
         exit()
     for speaker in speaker_list:
-        for style in speaker.styles:
-            style_name = f'{speaker.name} ({style["name"]})'
+        for style in speaker['styles']:
+            style_name = f'{speaker["name"]} ({style["name"]})'
             STYLE_LIST[int(style['id'])] = style_name
     logger.info(f'スタイル一覧: {STYLE_LIST}')
 
@@ -130,8 +130,8 @@ async def style_list(interaction: discord.Interaction) -> None:
 
     text: str = '## スタイル一覧\n'
     for speaker in speaker_list:
-        text += f'### {speaker.name}\n'
-        for style in speaker.styles:
+        text += f'### {speaker["name"]}\n'
+        for style in speaker['styles']:
             text += f'- {style["id"]} : {style["name"]}\n'
     await interaction.response.send_message(text)
     return
