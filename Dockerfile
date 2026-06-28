@@ -1,4 +1,4 @@
-FROM python:3.11.7-bookworm
+FROM python:3.14.6-bookworm
 
 RUN apt update && apt install -y libopus0 ffmpeg
 
