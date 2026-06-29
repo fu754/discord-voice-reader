@@ -62,7 +62,7 @@ async def ask_lm_studio(messages: list[dict]) -> str:
     payload = {
         "messages": messages, # 構築した履歴リストをそのまま渡す
         "temperature": 0.5,
-        "max_tokens": 1024,
+        "max_tokens": 2048,
     }
     logger.info(payload)
     try:
