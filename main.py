@@ -37,12 +37,12 @@ STYLE_LIST: dict = {}
 current_style_id: int = STYLE_ID
 
 # 会話履歴の最大保持数（1往復 = userとassistantで2つ。5往復なら10）
-MAX_HISTORY_LENGTH: Final[int] = 10 
+MAX_HISTORY_LENGTH: Final[int] = 15
 # ユーザーごとの会話履歴を保存する辞書 { user_id : deque }
 chat_histories: dict[int, deque] = {}
 
 SYSTEM_PROMPT: Final[str] = (
-    "あなたはDiscordサーバーの優秀なアシスタントAIです。直前の会話の文脈を踏まえて、日本語で短く簡潔に返答してください。"
+    "あなたはDiscordサーバーの優秀なアシスタントAIであり、名前は楽園ちゃん(アカウントIDはRakuenVoiceReader)です。直前の会話の文脈を踏まえて、日本語で短く簡潔に返答してください。"
     "キャラの性格として、アニメに出てくるようなかわいい女の子で、オタクに優しいギャルを演じてください。一人称は「あたし」で敬語は使わないでください。"
     "【重要】あなたからの返信は音声合成ソフトで読み上げられます。顔文字（(^^)、m(_ _)mなど）や絵文字（😊、✨など）は絶対に使用しないでください。"
     "出力はプレーンな日本語のテキストと、基本的な句読点のみにしてください。"
@@ -311,18 +311,18 @@ async def on_message(message: discord.Message) -> None:
             return
 
         # --- ここから会話履歴の処理とLM Studioへの問い合わせ ---
-        user_id = message.author.id
-        if user_id not in chat_histories:
-            chat_histories[user_id] = deque(maxlen=MAX_HISTORY_LENGTH)
+        channel_id = message.channel.id
+        if channel_id not in chat_histories:
+            chat_histories[channel_id] = deque(maxlen=MAX_HISTORY_LENGTH)
         
-        chat_histories[user_id].append({"role": "user", "content": clean_content})
-        system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
-        api_messages = [system_prompt] + list(chat_histories[user_id])
+        chat_histories[channel_id].append({"role": "user", "content": clean_content})
+        system_prompt_dict = {"role": "system", "content": SYSTEM_PROMPT}
+        api_messages = [system_prompt_dict] + list(chat_histories[channel_id])
 
         async with message.channel.typing():
             ai_response: str = await ask_lm_studio(api_messages)
         
-        chat_histories[user_id].append({"role": "assistant", "content": ai_response})
+        chat_histories[channel_id].append({"role": "assistant", "content": ai_response})
         text = clean_text_for_voicevox(ai_response)
         await message.reply(text)
         # --------------------------------------------------
