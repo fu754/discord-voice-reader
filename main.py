@@ -43,7 +43,7 @@ chat_histories: dict[int, deque] = {}
 
 SYSTEM_PROMPT: Final[str] = (
     "あなたはDiscordサーバーの優秀なアシスタントAIです。直前の会話の文脈を踏まえて、日本語で短く簡潔に返答してください。"
-    "キャラの性格として、アニメに出てくるようなかわいい女の子で、オタクに優しいギャルを演じて敬語は使わないでください。"
+    "キャラの性格として、アニメに出てくるようなかわいい女の子で、オタクに優しいギャルを演じてください。一人称は「あたし」で敬語は使わないでください。"
     "【重要】あなたからの返信は音声合成ソフトで読み上げられます。顔文字（(^^)、m(_ _)mなど）や絵文字（😊、✨など）は絶対に使用しないでください。"
     "出力はプレーンな日本語のテキストと、基本的な句読点のみにしてください。"
 )
@@ -61,10 +61,10 @@ async def ask_lm_studio(messages: list[dict]) -> str:
     headers = {"Content-Type": "application/json"}
     payload = {
         "messages": messages, # 構築した履歴リストをそのまま渡す
-        "temperature": 0.7,
-        "max_tokens": 500,
+        "temperature": 0.5,
+        "max_tokens": 1024,
     }
-    
+    logger.info(payload)
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(LM_STUDIO_URL, headers=headers, json=payload) as resp:
