@@ -38,7 +38,7 @@ current_style_id: int = STYLE_ID
 
 # 会話履歴の最大保持数（1往復 = userとassistantで2つ。5往復なら10）
 MAX_HISTORY_LENGTH: Final[int] = 15
-# ユーザーごとの会話履歴を保存する辞書 { user_id : deque }
+# チャンネルごとの会話履歴を保存する辞書 { channel_id : deque }
 chat_histories: dict[int, deque] = {}
 
 SYSTEM_PROMPT: Final[str] = (
@@ -62,7 +62,7 @@ async def ask_lm_studio(messages: list[dict]) -> str:
     payload = {
         "messages": messages, # 構築した履歴リストをそのまま渡す
         "temperature": 0.5,
-        "max_tokens": 2048,
+        "max_tokens": 1024,
     }
     logger.info(payload)
     try:
@@ -283,6 +283,58 @@ async def default_style(interaction: discord.Interaction) -> None:
             wav_sound = discord.FFmpegPCMAudio("out.wav")
             interaction.guild.voice_client.play(wav_sound)
             logger.info(f'読み上げ済み: {text}')
+    return
+
+# チャットの履歴を削除する
+@tree.command(name="clear_chat_history", description="楽園ちゃんのチャット履歴のキャッシュクリアを行う")
+async def clear_chat_history(interaction: discord.Interaction) -> None:
+    channel_id = interaction.channel.id
+
+    # そのチャンネルの履歴が存在するかチェック
+    if channel_id in chat_histories:
+        # 履歴を削除して初期化
+        del chat_histories[channel_id]
+        await interaction.response.send_message('このチャンネルの会話の記憶をリセットしました！また新しい話題でお話ししましょう。', ephemeral=False)
+        logger.info(f'チャンネル({channel_id})のチャット履歴をクリアしました')
+    else:
+        await interaction.response.send_message('このチャンネルの会話の記憶をリセットしました！また新しい話題でお話ししましょう。', ephemeral=False)
+        logger.info(f'チャンネル({channel_id})のチャット履歴をクリアしました')
+        # そもそも履歴がない場合
+        # await interaction.response.send_message('このチャンネルにはまだ私の記憶がありません！', ephemeral=False)
+    return
+
+# チャットの履歴を表示する
+@tree.command(name="check_chat_history", description="楽園ちゃんにキャッシュされているチャット履歴を表示する")
+async def check_chat_history(interaction: discord.Interaction) -> None:
+    channel_id = interaction.channel.id
+
+    # そのチャンネルの履歴が存在するかチェック
+    if channel_id not in chat_histories or not chat_histories[channel_id]:
+        await interaction.response.send_message('現在、このチャンネルにキャッシュされているチャット履歴はありません', ephemeral=False)
+        return
+
+    text: str = "## 📝 現在のチャット履歴キャッシュ\n"
+    history = chat_histories[channel_id]
+
+    for i, msg in enumerate(history, 1):
+        # role（役割）を分かりやすく変換
+        role_name = "🗣️ ユーザー" if msg["role"] == "user" else "🌸 楽園ちゃん"
+        content = msg["content"]
+        
+        # 1発言が長すぎる場合は表示用に少し省略する（必要に応じて変更してください）
+        if len(content) > 150:
+            content = content[:150] + "..."
+            
+        line_text = f"**{i}. {role_name}**\n{content}\n\n"
+        
+        # Discordの2000文字制限に引っかからないように安全対策
+        if len(text) + len(line_text) > 1900:
+            text += "※文字数制限のため、以降の表示は省略されています。\n"
+            break
+            
+        text += line_text
+
+    await interaction.response.send_message(text, ephemeral=True)
     return
 
 # 通常のメッセージ受信時
