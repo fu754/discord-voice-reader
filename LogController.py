@@ -47,5 +47,7 @@ def get_logger(name: str) -> Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     logging.getLogger('discord.http').setLevel(logging.INFO)
+    # 受信拡張が出す「unexpected rtcp packet」や「WS payload has extra keys」は動作に影響しないため警告以上のみ表示する
+    logging.getLogger('discord.ext.voice_recv').setLevel(logging.WARNING)
 
     return logger

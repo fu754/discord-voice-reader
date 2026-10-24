@@ -10,6 +10,11 @@ services:
     command: python main.py
     volumes:
       - './log:/app/log'
+      - './recordings:/app/recordings'
+      - 'whisper-cache:/root/.cache/whisper'
     restart: always
     depends_on:
       - voicevox
+
+volumes:
+  whisper-cache:
