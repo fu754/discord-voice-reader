@@ -43,7 +43,7 @@ class TranscribeCog(commands.Cog):
         voice_client.listen(sink)
         await respond(
             interaction,
-            'VCの文字起こしを開始しました。発話はこのチャンネルに投稿されます。音声は保存しません。参加者の発話がテキスト化されることにご注意ください。終了は `/transcribe_stop` です。',
+            'VCの文字起こしを開始しました。発話の内容はテキスト化され、このチャンネルに投稿されます。音声は保存しません。終了は `/transcribe_stop` です。',
             ephemeral=False,
         )
 
@@ -65,7 +65,7 @@ class TranscribeCog(commands.Cog):
         state.speech_judges[interaction.guild.id] = judge
         sink.on_text = judge.submit
         await interaction.response.send_message(
-            '発話の判定を開始しました。文字起こしされた発話はLM Studioに渡され、社会通念やポリティカルコレクトネスの観点で問題度(0〜10)が採点され、このチャンネルに投稿されます。終了は `/judge_stop` です。',
+            '発話の判定を開始しました。文字起こしされた発話内容はLM Studioに渡され処理されます。発話内容は社会通念やポリティカルコレクトネスの観点で問題度(0〜10)が採点され、このチャンネルに投稿されます。終了は `/judge_stop` です。',
             ephemeral=False,
         )
 

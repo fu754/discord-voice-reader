@@ -17,7 +17,7 @@ load_dotenv()
 log = logging.getLogger(__name__)
 
 # 問題度がこの値以上なら警告表示にする
-ALERT_THRESHOLD: Final[int] = int(os.environ.get('JUDGE_ALERT_THRESHOLD', '5'))
+ALERT_THRESHOLD: Final[int] = int(os.environ.get('JUDGE_ALERT_THRESHOLD', '7'))
 # 判定待ちの上限。超えた分は破棄する
 MAX_PENDING: Final[int] = 20
 # 判定時に文脈として添える直前の発話数
