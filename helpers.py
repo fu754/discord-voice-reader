@@ -106,7 +106,7 @@ async def prepare_listening_client(interaction: discord.Interaction) -> Union[vo
             await respond(interaction, 'ボイスチャンネルに接続できませんでした')
             return None
     elif not isinstance(voice_client, voice_recv.VoiceRecvClient):
-        await respond(interaction, '現在の接続は音声受信に対応していません。/stopで退席後、もう一度実行してください')
+        await respond(interaction, '現在の接続は音声受信に対応していません。`/stop` で退席後、もう一度実行してください')
         return None
 
     if voice_client.channel != user_voice.channel:

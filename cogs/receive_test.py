@@ -110,7 +110,7 @@ class ReceiveTestCog(commands.Cog):
         sink = ReceiveTestSink()
         state.receive_test_sinks[guild.id] = sink
         voice_client.listen(sink)
-        await respond(interaction, '音声受信テストを開始しました。VCで話した後、/receive_test_stopで停止すると、受信した音声をWAVファイルとして書き出します。録音されることを参加者に伝えてください。')
+        await respond(interaction, '音声受信テストを開始しました。VCで話した後、`/receive_test_stop` で停止すると、受信した音声をWAVファイルとして書き出します。録音されることを参加者に伝えてください。')
 
     # VC音声の受信テストを終了し、ユーザーごとの受信量を表示する
     @app_commands.command(name="receive_test_stop", description="VC音声の受信テストを終了して結果を表示する")
