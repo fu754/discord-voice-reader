@@ -64,6 +64,7 @@ async def ask_lm_studio(messages: list[dict]) -> str:
         "messages": messages, # 構築した履歴リストをそのまま渡す
         "temperature": 0.5,
         "max_tokens": 1024,
+        "chat_template_kwargs": {"enable_thinking": False},
     }
     logger.info(payload)
     try:
