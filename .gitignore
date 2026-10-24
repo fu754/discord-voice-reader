@@ -2,3 +2,5 @@ venv/
 .env
 out.wav
 __pycache__/
+
+recordings/
